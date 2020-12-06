@@ -1,6 +1,9 @@
 package edu.uoc.pac3.twitch.streams
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -8,10 +11,12 @@ import edu.uoc.pac3.R
 import edu.uoc.pac3.data.TwitchApiService
 import edu.uoc.pac3.data.network.Network
 import edu.uoc.pac3.data.streams.StreamsResponse
+import edu.uoc.pac3.twitch.profile.ProfileActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 class StreamsActivity : AppCompatActivity() {
 
@@ -23,7 +28,27 @@ class StreamsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_streams)
         // Init RecyclerView
         initRecyclerView()
-        getStreams()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val streams: StreamsResponse = getStreams()
+            withContext(Dispatchers.Main) {
+                streams.data?.let { adapter.setStreams(it) }
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.profile ->
+                startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun initRecyclerView() {
@@ -36,17 +61,9 @@ class StreamsActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
-    private fun getStreams() {
+    private suspend fun getStreams(): StreamsResponse {
         val twitch = TwitchApiService(Network.createHttpClient(this))
-        GlobalScope.launch(Dispatchers.IO) {
-            // Fetch streams from twitch from a IO Coroutine
-            val streams: StreamsResponse = twitch.getStreams()
-
-            // Switch to main thread in order to update the list
-            withContext(Dispatchers.Main){
-                streams.data?.let { adapter.setStreams(it) }
-            }
-        }
+        return twitch.getStreams()
     }
 
 }
