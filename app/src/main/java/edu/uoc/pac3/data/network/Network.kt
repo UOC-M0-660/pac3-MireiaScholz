@@ -2,6 +2,8 @@ package edu.uoc.pac3.data.network
 
 import android.content.Context
 import android.util.Log
+import edu.uoc.pac3.data.SessionManager.Companion.accessTokenKey
+import edu.uoc.pac3.data.oauth.OAuthConstants.clientID
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
@@ -41,13 +43,18 @@ object Network {
             }
             // Apply to All Requests
             defaultRequest {
-                parameter("api_key", "some_api_key")
+                header("Client-Id", clientID)
+                header("Authorization", "Bearer ${getAccessToken(context)}")
                 // Content Type
                 if (this.method != HttpMethod.Get) contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
             }
 
         }
+    }
+
+    private fun getAccessToken(context: Context): String? {
+        return context.getSharedPreferences("PREFERENCES_FILE", Context.MODE_PRIVATE).getString(accessTokenKey, null)
     }
 
     private val json = kotlinx.serialization.json.Json {

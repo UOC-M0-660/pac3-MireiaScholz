@@ -9,8 +9,11 @@ import android.content.SharedPreferences
 
 class SessionManager(context: Context) {
 
-    private val accessTokenKey = "ACCESS_TOKEN"
-    private val refreshTokenKey = "REFRESH_TOKEN"
+    companion object{
+        const val accessTokenKey = "ACCESS_TOKEN"
+        const val refreshTokenKey = "REFRESH_TOKEN"
+    }
+
     private var sharedPreferences: SharedPreferences = context.getSharedPreferences("PREFERENCES_FILE", Context.MODE_PRIVATE)
 
     fun isUserAvailable(): Boolean {

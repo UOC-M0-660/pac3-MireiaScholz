@@ -1,14 +1,17 @@
 package edu.uoc.pac3.twitch.streams
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import edu.uoc.pac3.R
 import edu.uoc.pac3.data.streams.Stream
 
-class StreamListAdapter(private var streams: List<Stream>) :
+class StreamListAdapter(private var streams: List<Stream>, private val context: Context) :
     RecyclerView.Adapter<StreamListAdapter.ViewHolder>() {
 
     private fun getStream(position: Int): Stream {
@@ -32,6 +35,10 @@ class StreamListAdapter(private var streams: List<Stream>) :
         val stream = getStream(position)
         holder.titleView.text = stream.title
         holder.usernameView.text = stream.userName
+        val thumbnailUrl = stream.thumbnailUrl?.replace("{width}", "400")?.replace("{height}", "200")
+        Glide.with(context)
+            .load(thumbnailUrl)
+            .into(holder.thumbnailView)
 
         // TODO: Detalles del stream
 //        holder.view.setOnClickListener { view ->
@@ -58,6 +65,7 @@ class StreamListAdapter(private var streams: List<Stream>) :
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleView: TextView = view.findViewById(R.id.title)
         val usernameView: TextView = view.findViewById(R.id.username)
+        val thumbnailView: ImageView = view.findViewById(R.id.thumbnail)
     }
 
 }
